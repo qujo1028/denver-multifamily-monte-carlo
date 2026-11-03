@@ -1,0 +1,61 @@
+# ---------------------------------------------------------------------------
+# Deal assumptions for the Denver multifamily Monte Carlo model.
+# Swap in your own numbers here; no code changes needed.
+# All percentages are written as decimals (6% = 0.06).
+# ---------------------------------------------------------------------------
+
+simulation:
+  n_sims: 10000          # number of simulated 5-year outcomes
+  seed: 42               # fixed seed so every run gives identical results
+
+deal:
+  name: "Denver Multifamily Acquisition (200 units)"
+  purchase_price: 40000000
+  units: 200
+  closing_cost_pct: 0.02     # paid at purchase, funded with equity
+  selling_cost_pct: 0.02     # deducted from the sale price at exit
+  hold_years: 5              # sell at end of Year 5 using Year 6 NOI
+
+operations:
+  gpr_year1: 3600000             # Year 1 gross potential rent
+  other_income_pct_of_gpr: 0.05  # parking, pet fees, utility bill-backs, etc.
+  opex_pct_of_egi_year1: 0.40    # Year 1 opex = 40% of EGI, then grows on its own
+  capex_reserve_per_unit: 300    # per unit per year, held flat
+
+loan:
+  ltv: 0.65                  # loan = 65% of purchase price
+  fixed_rate: 0.0625         # rate for the base (fixed-rate) loan
+  amort_years: 30
+  term_years: 5              # matches the hold, so the loan is paid off at sale
+  payments_per_year: 12      # monthly payments
+
+# ---------------------------------------------------------------------------
+# Random variables. The base case sets every variable to its "mean".
+# ---------------------------------------------------------------------------
+distributions:
+  rent_growth:               # drawn every year
+    mean: 0.03
+    std: 0.015
+    autocorrelation: 0.5     # a strong year tends to be followed by a strong year
+
+  vacancy:                   # drawn once per scenario (one market regime per hold)
+    mean: 0.06
+    min: 0.03
+    max: 0.12
+    concentration: 6         # higher = tighter around the mean (beta a + b)
+
+  expense_growth:            # drawn every year
+    mean: 0.03
+    std: 0.01
+
+  exit_cap:                  # drawn once per scenario
+    mean: 0.0575
+    std: 0.005
+    floor: 0.04
+
+  interest_rate:             # drawn once per scenario, used by the floating-rate version
+    mean: 0.0625
+    std: 0.0075
+    floor: 0.03
+
+  rate_cap_correlation: 0.6  # higher rates tend to push exit cap rates up
